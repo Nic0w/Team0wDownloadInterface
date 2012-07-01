@@ -40,5 +40,13 @@
   		<artifactId>javaee-api</artifactId>
   		<version>6.0</version>
   	</dependency>
+  	<dependency>
+  		<groupId>org.apache.tomcat</groupId>
+  		<artifactId>tomcat-catalina</artifactId>
+  		<version>7.0.28</version>
+  	</dependency>
   </dependencies>
+  <ciManagement>
+  	<url>http://www.team0w.fr/hudson/</url>
+  </ciManagement>
 </project>
