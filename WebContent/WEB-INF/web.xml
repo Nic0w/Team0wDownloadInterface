@@ -15,8 +15,17 @@
     <servlet-name>TransmissionInterface</servlet-name>
     <servlet-class>fr.team0w.dl_iface.servlet.TransmissionInterface</servlet-class>
   </servlet>
+  <servlet>
+  	<display-name>DirectoryListingProvider</display-name>
+  	<servlet-name>DirectoryListingProvider</servlet-name>
+  	<servlet-class>fr.team0w.dl_iface.servlet.DirectoryListingProvider</servlet-class>
+  </servlet>
   <servlet-mapping>
     <servlet-name>TransmissionInterface</servlet-name>
     <url-pattern>/TransmissionInterface</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+  	<servlet-name>DirectoryListingProvider</servlet-name>
+  	<url-pattern>/DirectoryListingProvider</url-pattern>
   </servlet-mapping>
 </web-app>
