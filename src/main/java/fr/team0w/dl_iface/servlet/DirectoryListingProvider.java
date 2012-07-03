@@ -65,7 +65,7 @@ public class DirectoryListingProvider extends HttpServlet {
 			try {
 				object.append("name", file.toString());
 				
-				fileObject = file.toFile();
+				fileObject = element.toFile();
 				object.append("size", fileObject.length());
 				if(fileObject.isFile()) {
 					type = "file";
