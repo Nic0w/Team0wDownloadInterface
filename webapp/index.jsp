@@ -19,28 +19,31 @@
 		
 		var content_div = $("#content");
 		
-		function link_for(path) {
+		function link_for(origin, path) {
 			
 			if(path.type=="file") {
-				return "<a href=\"/downloads/" + path.name + "\">" + path.name + "</a>";
+				
+				
+				return "<a href=\"/downloads/" +origin +"/"+ path.name + "\">" + path.name + "</a>";
 			}
 			else {
-				return path.name;
-				 //return "<a href=\"#\" onclick=\"javascript:show_downloads('" + path.name + "');\">" + path.name + "</a>";
+				//return path.name;
+				 return "<a href=\"#\" onclick=\"javascript:show_downloads('" + path.name + "');\">" + path.name + "</a>";
 			}
 			
 		}
 		
 		function show_downloads(dir) {
 			
-			$.getJSON("/DownloadInterface/DirectoryListingProvider", function(data) {
+			$.getJSON("/DownloadInterface/DirectoryListingProvider", { path: dir }, 
+				function(data) {
 				
 					$("#content").html("<table id=\"directory_list\"></table>");
 					
 					$.each(data, function(index, path) { 
 							var last_line = $("#directory_list").append("<tr></tr>").children().children(':last-child');
 							
-							last_line.append("<td>" + link_for(path) + "</td>");
+							last_line.append("<td>" + link_for(dir, path) + "</td>");
 							last_line.append("<td>" + (path.size / 1000000) + "</td>");
 							last_line.append("<td>Noob remove</td>");
 						}
