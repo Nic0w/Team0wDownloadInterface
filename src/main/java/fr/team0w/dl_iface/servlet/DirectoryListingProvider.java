@@ -24,9 +24,9 @@ import org.json.JSONObject;
 @WebServlet("/DirectoryListingProvider")
 public class DirectoryListingProvider extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private static final String ROOT = "/var/lib/transmission-daemon/downloads/";
+	//private static final String ROOT = "/var/lib/transmission-daemon/downloads/";
       
-	//private static final String ROOT = "C:\\Users\\Nic0w\\Videos";
+	private static final String ROOT = "C:\\Users\\Nic0w\\Videos";
 	private final FileSystem defaultFileSystem;
 	
     /**
