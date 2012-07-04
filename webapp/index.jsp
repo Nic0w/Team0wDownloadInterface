@@ -15,7 +15,36 @@
 		
 		var default_dir = "root";
 		
+		var pwet=3;
+		
+		var content_div = $("#content");
+		
 		function show_downloads() {
+			
+			$.getJSON("/DownloadInterface/DirectoryListingProvider", function(data) {
+				
+					$("#content").html("<table id=\"directory_list\"></table>");
+					
+					pwet = data;
+					
+					$.each(data, function(index, path) { 
+							var last_line = $("#directory_list").append("<tr></tr>").children().children(':last-child');
+							last_line.append("<td>" + path.name + "</td>");
+							last_line.append("<td>" + path.size + "</td>");
+							last_line.append("<td>Noob remove</td>");
+						}
+					);
+					/*for(var path in data) {
+						
+						var last_line = $("#directory_list").append("<tr></tr>").children().children(':last-child');
+						
+						last_line.append("<td>" + path.name + "</td>");
+						last_line.append("<td>" + path.size + "</td>");
+						last_line.append("<td>Noob remove</td>");
+					}*/
+					
+				}
+			);
 			
 			alert("Noob !");
 		}

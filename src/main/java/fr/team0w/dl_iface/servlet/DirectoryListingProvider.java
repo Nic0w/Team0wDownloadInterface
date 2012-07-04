@@ -64,10 +64,10 @@ public class DirectoryListingProvider extends HttpServlet {
 			
 			Path file = element.getFileName();
 			try {
-				object.append("name", file.toString());
+				object.accumulate("name", file.toString());
 				
 				fileObject = element.toFile();
-				object.append("size", fileObject.length());
+				object.accumulate("size", fileObject.length());
 				if(fileObject.isFile()) {
 					type = "file";
 					//object.append("size", fileObject.length());
@@ -75,7 +75,7 @@ public class DirectoryListingProvider extends HttpServlet {
 				else {
 					type = "directory";
 				}
-				object.append("type", type);
+				object.accumulate("type", type);
 				
 			} catch (JSONException e) {
 				e.printStackTrace();
