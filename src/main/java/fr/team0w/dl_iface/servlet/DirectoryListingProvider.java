@@ -61,6 +61,7 @@ public class DirectoryListingProvider extends HttpServlet {
 		for(Path element : directoryStreamFor(requestedPath(request))) {
 			
 			object = new JSONObject();
+			
 			Path file = element.getFileName();
 			try {
 				object.append("name", file.toString());
