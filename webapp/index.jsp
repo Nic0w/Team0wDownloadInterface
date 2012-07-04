@@ -19,30 +19,32 @@
 		
 		var content_div = $("#content");
 		
-		function show_downloads() {
+		function link_for(path) {
+			
+			if(path.type=="file") {
+				return "<a href=\"/downloads/" + path.name + "\">" + path.name + "</a>";
+			}
+			else {
+				return path.name;
+				 //return "<a href=\"#\" onclick=\"javascript:show_downloads('" + path.name + "');\">" + path.name + "</a>";
+			}
+			
+		}
+		
+		function show_downloads(dir) {
 			
 			$.getJSON("/DownloadInterface/DirectoryListingProvider", function(data) {
 				
 					$("#content").html("<table id=\"directory_list\"></table>");
 					
-					pwet = data;
-					
 					$.each(data, function(index, path) { 
 							var last_line = $("#directory_list").append("<tr></tr>").children().children(':last-child');
-							last_line.append("<td>" + path.name + "</td>");
-							last_line.append("<td>" + path.size + "</td>");
+							
+							last_line.append("<td>" + link_for(path) + "</td>");
+							last_line.append("<td>" + (path.size / 1000000) + "</td>");
 							last_line.append("<td>Noob remove</td>");
 						}
 					);
-					/*for(var path in data) {
-						
-						var last_line = $("#directory_list").append("<tr></tr>").children().children(':last-child');
-						
-						last_line.append("<td>" + path.name + "</td>");
-						last_line.append("<td>" + path.size + "</td>");
-						last_line.append("<td>Noob remove</td>");
-					}*/
-					
 				}
 			);
 			
@@ -65,7 +67,7 @@
 				<td style="background-color:#FFD700;width:20%;text-align:top;"> <!-- Menu : 20% -->
 					<b>Menu :</b>
 					<ul>
-						<li><a href="javascript:show_downloads();">Downloads list</a></li>
+						<li><a href="javascript:show_downloads('');">Downloads list</a></li>
 						<li>Add a download</li>
 					</ul>
 				</td>
