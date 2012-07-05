@@ -13,46 +13,104 @@
 		<script type="text/javascript" src="js/jquery-ui-1.8.20.custom.min.js"></script>
 		<script type="text/javascript">
 		
-		var default_dir = "root";
+		var last_dir = "";
+		var directory_data;
+		var current_dir="n";
 		
-		var pwet=3;
-		
-		var content_div = $("#content");
-		
-		function link_for(origin, path) {
+		window.addEventListener("popstate", function(event) { 
+				console.log("PopState Fired ! event state :" + event.state);
 			
+				
+				if(event.state==null) 
+					current_dir ="";
+				else
+					current_dir = event.state;
+				
+				if(last_dir != "") current_dir = last_dir +"/"+current_dir+"/"
+				show_downloads(event.state);
+				
+
+				
+			}
+		);
+		
+		$(document).ready(function() {
+				//history.replaceState({current_path: 'root'}, "Plop");
+			
+				console.log("Noob");
+			}
+		);
+		
+		function load_from_history(pop_event) {
+			if(pop_event.state.path != null)
+				show_downloads(pop_event.state.path);
+		}
+		
+		function link_for_file(path) {
 			if(path.type=="file") {
-				
-				
-				return "<a href=\"/downloads/" +origin +"/"+ path.name + "\">" + path.name + "</a>";
+				return "<a href=\"/downloads/" + current_dir + encodeURIComponent(path.name) + "\" class=\"file\">" + path.name + "</a>";
 			}
-			else {
-				//return path.name;
-				 return "<a href=\"#\" onclick=\"javascript:show_downloads('" + path.name + "');\">" + path.name + "</a>";
-			}
+			else return path.name;
+		}
+
+		function link_for_dir(path) {
 			
+			if(path.type=="directory") {
+				var encoded_path = encodeURIComponent(path.name);
+				return "<a href=\"index.jsp?path="+ current_dir + encoded_path + "\" class=\"directory\">Explore</a>";
+			}
+			else return "";
+		}
+		
+		function click_handler(event) {
+			
+			console.log("Click Fired !");
+			
+			var directory_clicked = $(event.target).attr("href").split("=").pop();
+			
+			directory_clicked = decodeURIComponent(directory_clicked);
+			
+			
+			last_dir=current_dir;
+			current_dir=directory_clicked+"/";
+			show_downloads(directory_clicked);
+			
+			history.pushState(directory_clicked, event.target.textContent, event.target.href);
+			
+			return event.preventDefault();
 		}
 		
 		function show_downloads(dir) {
+		
+			if(dir==null) dir='<%
+					String path = request.getParameter("path");
+					out.print(path==null ? "" : path); 
+					%>';
+			
+			last_dir = dir;
 			
 			$.getJSON("/DownloadInterface/DirectoryListingProvider", { path: dir }, 
 				function(data) {
-				
+
 					$("#content").html("<table id=\"directory_list\"></table>");
 					
 					$.each(data, function(index, path) { 
 							var last_line = $("#directory_list").append("<tr></tr>").children().children(':last-child');
 							
-							last_line.append("<td>" + link_for(dir, path) + "</td>");
+							last_line.append("<td>" + link_for_file(path) + "</td>");
 							last_line.append("<td>" + (path.size / 1000000) + "</td>");
+							last_line.append("<td>" + link_for_dir(path) + "</td>");
 							last_line.append("<td>Noob remove</td>");
 						}
 					);
+					$("a.directory").bind('click', click_handler);
 				}
 			);
 			
-			alert("Noob !");
+			//alert("Noob !");
 		}
+		
+		//history.replaceState(current_dir, document.title, document.location.href);
 		
 		
 		</script>
