@@ -1,0 +1,26 @@
+
+
+table {
+	border-collapse:collapse;
+}
+
+a.file, a.directory {
+	color: black;
+	text-decoration: none;
+	
+}
+a.file:hover, a.directory:hover {
+	text-decoration: underline;
+	color: blue;
+}
+
+td.size, td.type, td.date {
+	
+	padding-left:30px;
+}
+
+tr.path_entry:hover {
+	
+	background-color: Gainsboro;
+	
+}

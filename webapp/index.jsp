@@ -8,6 +8,7 @@
 		<title>Team0w Downloading Interface</title>
 		
 		<link type="text/css" href="css/smoothness/jquery-ui-1.8.20.custom.css" rel="stylesheet" />	
+		<link type="text/css" href="style.css" rel="stylesheet" />	
 
 		<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
 		<script type="text/javascript" src="js/jquery-ui-1.8.20.custom.min.js"></script>
@@ -46,22 +47,17 @@
 				show_downloads(pop_event.state.path);
 		}
 		
-		function link_for_file(path) {
-			if(path.type=="file") {
-				var base = current_dir != "" ? current_dir + "/" : "";
-				return "<a href=\"/downloads/" + base + encodeURIComponent(path.name) + "\" class=\"file\">" + path.name + "</a>";
-			}
-			else return path.name;
-		}
-
-		function link_for_dir(path) {
+		function link_for(path) {
 			
-			if(path.type=="directory") {
-				var encoded_path = encodeURIComponent(path.name);
-				var base = current_dir != "" ? current_dir + "/" : "";
-				return "<a href=\"index.jsp?path="+ base + encoded_path + "\" class=\"directory\">Explore</a>";
+			var base = current_dir != "" ? current_dir + "/" : "";
+			var encoded_pathname = encodeURIComponent(path.name);
+			
+			if(path.type=="file") {
+				return "<a href=\"/downloads/" + base + encoded_pathname + "\" class=\"file\">" + path.name + "</a>";
 			}
-			else return "";
+			else {
+				return "<a href=\"index.jsp?path="+ base + encoded_pathname + "\" class=\"directory\">" + path.name + "</a>";
+			}
 		}
 		
 		function click_handler(event) {
@@ -113,10 +109,10 @@
 						var last_line = $("#directory_list").append("<tr class=\"path_entry\"></tr>").children().children(':last-child');
 						
 						last_line.
-							append("<td>" + link_for_file(path) + "</td>").
-							append("<td>" + readable_date(path.date) + "</td>").
-							append("<td>" + path.size + "</td>").
-							append("<td>" + link_for_dir(path) + "</td>").
+							append("<td class=\"link\">" + link_for(path) + "</td>").
+							append("<td class=\"date\">" + readable_date(path.date) + "</td>").
+							append("<td class=\"type\">"+ (path.type=="file" ? "File" : "Directory") + "</td>").
+							append("<td class=\"size\">" + path.size + "</td>").
 							append("<td></td>");
 					}
 				);
@@ -172,26 +168,26 @@
 	
 		<table width="100%" height="100%" border="0">
 			<tr> <!-- Header : first line of the table -->
-				<td colspan="2" style="background-color:#FFA500;">
+				<td colspan="2" style="background-color:#FFFFFF;">
 					<h1>Team0w Download Interface</h1>
 				</td>
 			</tr>
 			<tr valign="top"> <!-- Menu and content : second line of the table -->
-				<td style="background-color:#FFD700;width:20%;text-align:top;"> <!-- Menu : 20% -->
+				<td style="background-color:#FFFFFF;width:20%;text-align:top;"> <!-- Menu : 20% -->
 					<b>Menu :</b>
 					<ul>
 						<li><a href="javascript:show_downloads('');">Downloads list</a></li>
 						<li>Add a download</li>
 					</ul>
 				</td>
-				<td style="background-color:#EEEEEE;width:100%;text-align:top;"> <!-- Content : 80% -->
+				<td style="background-color:#FFFFFF;width:100%;text-align:top;"> <!-- Content : 80% -->
 					<div id="content">
 						<table id="directory_list">
 							<tr>
 								<th>File/Directory name&nbsp;<img alt="Sort Arrow" src="icon_down_sort_arrow.png" onclick="javascript:sort_by('name');"/> </th>
 								<th>Date&nbsp;<img alt="Sort Arrow" src="icon_down_sort_arrow.png" onclick="javascript:sort_by('date');"/></th>
+								<th>Type</th>
 								<th>Size</th>
-								<th></th>
 								<th></th>
 							</tr>
 						</table>
@@ -199,7 +195,7 @@
 				</td>
 			</tr>
 			<tr> <!-- Footer : third line of the table -->
-				<td colspan="2" style="background-color:#FFA500;text-align:center;">
+				<td colspan="2" style="background-color:#FFFFFF;text-align:center;">
 					Copyright © Team0w.fr - Nic0w</td>
 			</tr>
 		</table>
