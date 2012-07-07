@@ -103,6 +103,26 @@
 			return day+'/'+month+'/'+year+' '+hours+':'+minutes
 		}
 		
+		
+		function build_table(data) {
+
+			directory_data = data;
+			$("tr.path_entry").remove();
+				
+				$.each(data, function(index, path) { 
+						var last_line = $("#directory_list").append("<tr class=\"path_entry\"></tr>").children().children(':last-child');
+						
+						last_line.
+							append("<td>" + link_for_file(path) + "</td>").
+							append("<td>" + readable_date(path.date) + "</td>").
+							append("<td>" + path.size + "</td>").
+							append("<td>" + link_for_dir(path) + "</td>").
+							append("<td></td>");
+					}
+				);
+				$("a.directory").bind('click', click_handler);
+			}
+		
 		function show_downloads(dir) {
 		
 			if(dir==null) dir='<%
@@ -112,32 +132,33 @@
 			
 			last_dir = dir;
 			
-			$.getJSON("/DownloadInterface-0.0.1-SNAPSHOT/DirectoryListingProvider", { path: dir }, 
-				function(data) {
-
-				directory_data = data;
-				$("tr.path_entry").remove();
-					
-					$.each(data, function(index, path) { 
-							var last_line = $("#directory_list").append("<tr class=\"path_entry\"></tr>").children().children(':last-child');
-							
-							last_line.
-								append("<td>" + link_for_file(path) + "</td>").
-								append("<td>" + readable_date(path.date) + "</td>").
-								append("<td>" + path.size + "</td>").
-								append("<td>" + link_for_dir(path) + "</td>").
-								append("<td></td>");
-						}
-					);
-					$("a.directory").bind('click', click_handler);
-				}
-			);
+			$.getJSON("<% out.print(request.getContextPath()); %>/DirectoryListingProvider", { path: dir }, build_table);
 			
 			//alert("Noob !");
 		}
 		
-		function sort() {
+		function sort_by(field) {
+			var n=directory_data.length;
+			var new_n, temp;
 			
+			do {
+				new_n = 0;
+				
+				for(var i=1;i<n;i++) {
+					if(directory_data[i-1][field] > directory_data[i][field]) {
+						
+						temp = directory_data[i];
+						directory_data[i] = directory_data[i-1];
+						directory_data[i-1] = temp;
+
+						new_n = i;
+					}
+				}
+				n = new_n;
+			}
+			while(n!=0);
+			
+			build_table(directory_data);
 		}
 		
 		
@@ -167,8 +188,8 @@
 					<div id="content">
 						<table id="directory_list">
 							<tr>
-								<th>File/Directory name</th>
-								<th>Date</th>
+								<th>File/Directory name&nbsp;<img alt="Sort Arrow" src="icon_down_sort_arrow.png" onclick="javascript:sort_by('name');"/> </th>
+								<th>Date&nbsp;<img alt="Sort Arrow" src="icon_down_sort_arrow.png" onclick="javascript:sort_by('date');"/></th>
 								<th>Size</th>
 								<th></th>
 								<th></th>
@@ -185,7 +206,7 @@
 	
 		<%
 		
-			//out.println("Hello world in JSP, bitches !");
+			out.println("Hello world in JSP, bitches ! Context path = " +request.getContextPath());
 		%>
 	</body>
 </html>
