@@ -7,7 +7,13 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
 
+import javax.annotation.Nullable;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -18,6 +24,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Iterators;
+
 /**
  * Servlet implementation class DirectoryListingProvider
  */
@@ -27,14 +37,18 @@ public class DirectoryListingProvider extends HttpServlet {
 	private static final String ROOT = "/var/lib/transmission-daemon/downloads/";
       
 	//private static final String ROOT = "C:\\Users\\Nic0w\\Videos";
+	
 	private final FileSystem defaultFileSystem;
+	private final DateFormat shortDate;
 	
     /**
      * @see HttpServlet#HttpServlet()
      */
     public DirectoryListingProvider() {
         super();
+        
         this.defaultFileSystem = FileSystems.getDefault();
+        this.shortDate = new SimpleDateFormat("dd/MM/yyyy HH:mm");
     }
 
     private Path requestedPath(HttpServletRequest request) {
@@ -48,6 +62,54 @@ public class DirectoryListingProvider extends HttpServlet {
     	return Files.newDirectoryStream(p);
     }
     
+    private String formatSize(File file) {
+    	if(file.isFile()) {
+    		
+    		long fileSize = file.length();
+    		int power = (int) Math.log10(fileSize);
+    		int divisor = 0;
+    		String unit = "B";
+    		
+    		if(power>2)  { unit ="KB"; divisor = 3; }
+    		if(power>5)  { unit ="MB"; divisor = 6; }
+    		if(power>8)  { unit ="GB"; divisor = 9; }
+    		if(power>11) { unit ="TB"; divisor = 12; }
+    		
+    		divisor = (int) Math.pow(10, divisor);
+    		
+    		return String.format("%d %s", fileSize / divisor, unit);
+    	}
+    	else 
+    		return "";
+    }
+    
+    
+    private Iterable<JSONObject> toJSON(DirectoryStream<Path> pathStream) {
+    
+    	return Iterables.transform(pathStream, new Function<Path, JSONObject>() {
+				@Nullable
+				public JSONObject apply(@Nullable Path path) {
+					String type, size;
+					File file = path.toFile();
+					JSONObject jsonifiedFile = new JSONObject();
+					
+					try {
+						jsonifiedFile.
+							accumulate("name", path.getFileName().toString()).
+							accumulate("size", formatSize(file)).
+							accumulate("date", file.lastModified()).
+							accumulate("type", file.isFile() ? "file" : "directory");
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					return jsonifiedFile;
+				}
+			}
+    	);
+
+    }
+    
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
@@ -58,30 +120,10 @@ public class DirectoryListingProvider extends HttpServlet {
 		JSONObject object;
 		JSONArray array = new JSONArray();
 		
-		for(Path element : directoryStreamFor(requestedPath(request))) {
-			
-			object = new JSONObject();
-			
-			Path file = element.getFileName();
-			try {
-				object.accumulate("name", file.toString());
+		for(JSONObject element : toJSON(directoryStreamFor(requestedPath(request)))) {
+		
 				
-				fileObject = element.toFile();
-				object.accumulate("size", fileObject.length());
-				if(fileObject.isFile()) {
-					type = "file";
-					//object.append("size", fileObject.length());
-				}
-				else {
-					type = "directory";
-				}
-				object.accumulate("type", type);
-				
-			} catch (JSONException e) {
-				e.printStackTrace();
-			}
-				
-			array.put(object);
+			array.put(element);
 		}
 		
 		try {

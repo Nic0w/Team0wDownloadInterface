@@ -15,7 +15,7 @@
 		
 		var last_dir = "";
 		var directory_data;
-		var current_dir="n";
+		var current_dir="";
 		
 		window.addEventListener("popstate", function(event) { 
 				console.log("PopState Fired ! event state :" + event.state);
@@ -26,7 +26,7 @@
 				else
 					current_dir = event.state;
 				
-				if(last_dir != "") current_dir = last_dir +"/"+current_dir+"/"
+				//if(last_dir != "") current_dir = last_dir +"/"+current_dir+"/"
 				show_downloads(event.state);
 				
 
@@ -48,7 +48,8 @@
 		
 		function link_for_file(path) {
 			if(path.type=="file") {
-				return "<a href=\"/downloads/" + current_dir + encodeURIComponent(path.name) + "\" class=\"file\">" + path.name + "</a>";
+				var base = current_dir != "" ? current_dir + "/" : "";
+				return "<a href=\"/downloads/" + base + encodeURIComponent(path.name) + "\" class=\"file\">" + path.name + "</a>";
 			}
 			else return path.name;
 		}
@@ -57,7 +58,8 @@
 			
 			if(path.type=="directory") {
 				var encoded_path = encodeURIComponent(path.name);
-				return "<a href=\"index.jsp?path="+ current_dir + encoded_path + "\" class=\"directory\">Explore</a>";
+				var base = current_dir != "" ? current_dir + "/" : "";
+				return "<a href=\"index.jsp?path="+ base + encoded_path + "\" class=\"directory\">Explore</a>";
 			}
 			else return "";
 		}
@@ -70,14 +72,35 @@
 			
 			directory_clicked = decodeURIComponent(directory_clicked);
 			
-			
 			last_dir=current_dir;
-			current_dir=directory_clicked+"/";
+			current_dir=directory_clicked;
 			show_downloads(directory_clicked);
 			
 			history.pushState(directory_clicked, event.target.textContent, event.target.href);
 			
 			return event.preventDefault();
+		}
+		
+		
+		function readable_date(timestamp) {
+			var date = new Date(timestamp);
+			
+			var day = date.getDate();
+			day = day<10 ? '0'+day : day;
+			
+			var month = date.getMonth() + 1;
+			month = month<10 ? '0'+month : month;
+			
+			var year  = date.getFullYear();
+			
+			var hours  = date.getHours();
+			hours = hours<10 ? '0'+hours : hours;
+			
+			var minutes = date.getMinutes();
+			minutes = minutes<10 ? '0'+minutes : minutes;
+			
+			
+			return day+'/'+month+'/'+year+' '+hours+':'+minutes
 		}
 		
 		function show_downloads(dir) {
@@ -89,18 +112,21 @@
 			
 			last_dir = dir;
 			
-			$.getJSON("/DownloadInterface/DirectoryListingProvider", { path: dir }, 
+			$.getJSON("/DownloadInterface-0.0.1-SNAPSHOT/DirectoryListingProvider", { path: dir }, 
 				function(data) {
 
-					$("#content").html("<table id=\"directory_list\"></table>");
+				directory_data = data;
+				$("tr.path_entry").remove();
 					
 					$.each(data, function(index, path) { 
-							var last_line = $("#directory_list").append("<tr></tr>").children().children(':last-child');
+							var last_line = $("#directory_list").append("<tr class=\"path_entry\"></tr>").children().children(':last-child');
 							
-							last_line.append("<td>" + link_for_file(path) + "</td>");
-							last_line.append("<td>" + (path.size / 1000000) + "</td>");
-							last_line.append("<td>" + link_for_dir(path) + "</td>");
-							last_line.append("<td>Noob remove</td>");
+							last_line.
+								append("<td>" + link_for_file(path) + "</td>").
+								append("<td>" + readable_date(path.date) + "</td>").
+								append("<td>" + path.size + "</td>").
+								append("<td>" + link_for_dir(path) + "</td>").
+								append("<td></td>");
 						}
 					);
 					$("a.directory").bind('click', click_handler);
@@ -109,6 +135,11 @@
 			
 			//alert("Noob !");
 		}
+		
+		function sort() {
+			
+		}
+		
 		
 		//history.replaceState(current_dir, document.title, document.location.href);
 		
@@ -133,7 +164,17 @@
 					</ul>
 				</td>
 				<td style="background-color:#EEEEEE;width:100%;text-align:top;"> <!-- Content : 80% -->
-					<div id="content">Content goes here</div>
+					<div id="content">
+						<table id="directory_list">
+							<tr>
+								<th>File/Directory name</th>
+								<th>Date</th>
+								<th>Size</th>
+								<th></th>
+								<th></th>
+							</tr>
+						</table>
+					</div>
 				</td>
 			</tr>
 			<tr> <!-- Footer : third line of the table -->
