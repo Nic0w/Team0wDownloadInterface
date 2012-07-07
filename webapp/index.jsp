@@ -18,6 +18,27 @@
 		var directory_data;
 		var current_dir="";
 		
+		$(function() {
+
+		    var $sidebar   = $("#sidebar"), 
+		        $window    = $(window),
+		        offset     = $sidebar.offset(),
+		        topPadding = 15;
+
+		    $window.scroll(function() {
+		        if ($window.scrollTop() > offset.top) {
+		            $sidebar.stop().animate({
+		                marginTop: $window.scrollTop() - offset.top + topPadding
+		            }, 0);
+		        } else {
+		            $sidebar.stop().animate({
+		                marginTop: 0
+		            }, 0);
+		        }
+		    });
+		    
+		});
+		
 		window.addEventListener("popstate", function(event) { 
 				console.log("PopState Fired ! event state :" + event.state);
 			
@@ -106,7 +127,7 @@
 			$("tr.path_entry").remove();
 				
 				$.each(data, function(index, path) { 
-						var last_line = $("#directory_list").append("<tr class=\"path_entry\"></tr>").children().children(':last-child');
+						var last_line = $("#directory_list").append("<tr class=\"path_entry\"></tr>").children(':last-child');
 						
 						last_line.
 							append("<td class=\"link\">" + link_for(path) + "</td>").
@@ -165,7 +186,7 @@
 	</head>
 	
 	<body>
-	
+
 		<table width="100%" height="100%" border="0">
 			<tr> <!-- Header : first line of the table -->
 				<td colspan="2" style="background-color:#FFFFFF;">
@@ -174,22 +195,27 @@
 			</tr>
 			<tr valign="top"> <!-- Menu and content : second line of the table -->
 				<td style="background-color:#FFFFFF;width:20%;text-align:top;"> <!-- Menu : 20% -->
-					<b>Menu :</b>
-					<ul>
-						<li><a href="javascript:show_downloads('');">Downloads list</a></li>
-						<li>Add a download</li>
-					</ul>
+					<div id="sidebar">	
+						<b>Menu :</b>
+						<ul>
+							<li><a href="javascript:show_downloads('');">Downloads list</a></li>
+							<li>Add a download</li>
+						</ul>
+					</div>
 				</td>
 				<td style="background-color:#FFFFFF;width:100%;text-align:top;"> <!-- Content : 80% -->
 					<div id="content">
-						<table id="directory_list">
-							<tr>
-								<th>File/Directory name&nbsp;<img alt="Sort Arrow" src="icon_down_sort_arrow.png" onclick="javascript:sort_by('name');"/> </th>
-								<th>Date&nbsp;<img alt="Sort Arrow" src="icon_down_sort_arrow.png" onclick="javascript:sort_by('date');"/></th>
-								<th>Type</th>
-								<th>Size</th>
-								<th></th>
-							</tr>
+						<table id="scrollable_table">
+							<thead class="fixed_table_header">
+								<tr>
+									<th>File/Directory name&nbsp;<img alt="Sort Arrow" src="icon_down_sort_arrow.png" onclick="javascript:sort_by('name');"/> </th>
+									<th>Date&nbsp;<img alt="Sort Arrow" src="icon_down_sort_arrow.png" onclick="javascript:sort_by('date');"/></th>
+									<th>Type</th>
+									<th>Size</th>
+									<th></th>
+								</tr>
+							</thead>
+							<tbody id="directory_list"></tbody>
 						</table>
 					</div>
 				</td>
@@ -202,7 +228,7 @@
 	
 		<%
 		
-			out.println("Hello world in JSP, bitches ! Context path = " +request.getContextPath());
+			//out.println("Hello world in JSP, bitches ! Context path = " +request.getContextPath());
 		%>
 	</body>
 </html>
